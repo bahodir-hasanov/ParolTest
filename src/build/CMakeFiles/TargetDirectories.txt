@@ -1,0 +1,3 @@
+/home/aldentra/preyekt/ParolTest/src/build/CMakeFiles/app.dir
+/home/aldentra/preyekt/ParolTest/src/build/CMakeFiles/edit_cache.dir
+/home/aldentra/preyekt/ParolTest/src/build/CMakeFiles/rebuild_cache.dir
