@@ -1,0 +1,14 @@
+#src papkada turib qilinadi
+rm -rf build
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+
+
+
+# so'ng
+
+.app
+
+ishga tushuradi
