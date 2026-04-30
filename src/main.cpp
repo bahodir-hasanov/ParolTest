@@ -396,6 +396,7 @@ void printHeader() {
               << "  ██╔═══╝ ██╔══██║██╔══██╗██║   ██║██║     ██║   ██╔══╝  ╚════██║   ██║   \n"
               << "  ██║     ██║  ██║██║  ██║╚██████╔╝███████╗██║   ███████╗███████║   ██║   \n"
               << "  ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚══════╝╚══════╝   ╚═╝   \n"
+              << " Salom! mamnunman sizni ko'rib turganimdan. #dev_boha\n\n"
               << Color::RESET;
     printLine('=');
     std::cout << Color::DIM << "  Parol kuchini tahlil qiluvchi va kuchaytirishchi dastur\n" << Color::RESET;
@@ -632,7 +633,7 @@ void mainMenu() {
                       << "    • O'rta Osiyo + global mashhur parollar bazasi\n"
                       << "    • Pattern detection (keyboard, sequential, repeat)\n"
                       << "    • Smart substitution suggestion engine\n\n"
-                      << "  Muallif: ParolTest loyihasi | C++17\n"
+                      << "  Muallif: Dev_boha | C++17\n"
                       << Color::RESET;
             printLine('-');
             std::cout << "\n  " << Color::DIM << "Davom etish uchun Enter bosing..." << Color::RESET;
