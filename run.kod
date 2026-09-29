@@ -1,14 +1,10 @@
-#src papkada turib qilinadi
-rm -rf build
-mkdir build
-cd build
-cmake ..
-make -j$(nproc)
+# src papkada yoki loyiha ildizida
 
+# ildizdan:
+cmake -S . -B build
+cmake --build build -j$(nproc)
+./build/paroltest
 
-
-# so'ng
-
-.app
-
-ishga tushuradi
+# src ichidan:
+# rm -rf build && mkdir build && cd build && cmake .. && cmake --build . -j$(nproc)
+# ./paroltest

@@ -9,7 +9,31 @@
 #include <map>
 #include <sstream>
 #include <iomanip>
+#include <cctype>
+#include <limits>
 #include "passwords_db.hpp"
+
+inline int asciiLower(int c) {
+    return std::tolower(static_cast<unsigned char>(c));
+}
+inline int asciiUpper(int c) {
+    return std::toupper(static_cast<unsigned char>(c));
+}
+inline bool isAsciiLower(int c) {
+    return std::islower(static_cast<unsigned char>(c)) != 0;
+}
+inline bool isAsciiUpper(int c) {
+    return std::isupper(static_cast<unsigned char>(c)) != 0;
+}
+inline bool isAsciiDigit(int c) {
+    return std::isdigit(static_cast<unsigned char>(c)) != 0;
+}
+inline bool isAsciiAlpha(int c) {
+    return std::isalpha(static_cast<unsigned char>(c)) != 0;
+}
+inline bool isAsciiAlnum(int c) {
+    return std::isalnum(static_cast<unsigned char>(c)) != 0;
+}
 
 // ════════════════════════════════════════════════════════════════
 //  ParolTest — Tahlil va hisoblash moduli
@@ -42,9 +66,10 @@ struct CrackEstimate {
 struct StrengthResult {
     int    score;       // 0-100
     int    stars;       // 0-5
+    int    length = 0;
     std::string label;
     std::string cssClass; // "very-weak","weak","medium","strong","very-strong"
-    double entropy;
+    double entropy = 0;
     CharsetInfo charset;
     std::vector<PatternInfo> patterns;
     std::vector<std::string> issues;
@@ -62,10 +87,10 @@ CharsetInfo analyzeCharset(const std::string& p) {
     std::set<char> uniq(p.begin(), p.end());
     ci.uniqueChars = (int)uniq.size();
     for (char c : p) {
-        if (std::islower((unsigned char)c)) ci.hasLower  = true;
-        if (std::isupper((unsigned char)c)) ci.hasUpper  = true;
-        if (std::isdigit((unsigned char)c)) ci.hasDigit  = true;
-        if (!std::isalnum((unsigned char)c))ci.hasSymbol = true;
+        if (isAsciiLower(c)) ci.hasLower  = true;
+        if (isAsciiUpper(c)) ci.hasUpper  = true;
+        if (isAsciiDigit(c)) ci.hasDigit  = true;
+        if (!isAsciiAlnum(c)) ci.hasSymbol = true;
     }
     if (ci.hasLower)  ci.size += 26;
     if (ci.hasUpper)  ci.size += 26;
@@ -79,15 +104,16 @@ CharsetInfo analyzeCharset(const std::string& p) {
 std::vector<PatternInfo> detectPatterns(const std::string& password) {
     std::vector<PatternInfo> result;
     std::string lower = password;
-    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    std::transform(lower.begin(), lower.end(), lower.begin(),
+                   [](char ch) { return static_cast<char>(asciiLower(ch)); });
     const int L = (int)password.size();
 
     // 1. Faqat raqamlar
-    if (std::all_of(password.begin(), password.end(), ::isdigit))
+    if (std::all_of(password.begin(), password.end(), isAsciiDigit))
         result.push_back({"Faqat raqamlar", 0.0001});
 
     // 2. Faqat harflar
-    if (std::all_of(password.begin(), password.end(), ::isalpha))
+    if (std::all_of(password.begin(), password.end(), isAsciiAlpha))
         result.push_back({"Faqat harflar", 0.01});
 
     // 3. Hammasi bir xil
@@ -98,8 +124,8 @@ std::vector<PatternInfo> detectPatterns(const std::string& password) {
     // 4. Ketma-ket raqamlar
     bool seqAsc = true, seqDesc = true;
     for (int i = 1; i < L; i++) {
-        if (!isdigit(password[i]) || password[i] != password[i-1]+1) seqAsc  = false;
-        if (!isdigit(password[i]) || password[i] != password[i-1]-1) seqDesc = false;
+        if (!isAsciiDigit(password[i]) || password[i] != password[i-1]+1) seqAsc  = false;
+        if (!isAsciiDigit(password[i]) || password[i] != password[i-1]-1) seqDesc = false;
     }
     if ((seqAsc || seqDesc) && L >= 4)
         result.push_back({"Ketma-ket raqamlar (1234 / 9876)", 0.0001});
@@ -190,14 +216,19 @@ CrackEstimate calcCrackTime(const std::string& password,
     const int L = (int)password.size();
 
     // GPU hashcat tezliklari (MD5 uchun)
-    const double GPU_RATE   = 1e10; // 10 milliard/s
-    // Offline bcrypt
-    const double BCRYPT_RATE = 1e4;  // 10 ming/s
+    const double GPU_RATE = 1e10; // 10 milliard/s
 
-    // 2) Brute-force
+    // 2) Brute-force — uzun parolda pow() overflow bo'lmasin
     double N = ci.size > 0 ? ci.size : 26;
-    double combinations = pow(N, L);
-    double bruteTime    = combinations / GPU_RATE;
+    double combinations = 0.0;
+    if (L > 40) {
+        combinations = std::numeric_limits<double>::infinity();
+    } else {
+        combinations = std::pow(N, L);
+        if (!std::isfinite(combinations))
+            combinations = std::numeric_limits<double>::infinity();
+    }
+    double bruteTime = combinations / GPU_RATE;
 
     // 3) Entropy asosida
     double ent = calcEntropy(password);
@@ -304,7 +335,7 @@ std::vector<std::string> suggestUpgrade(const std::string& base) {
     // Variant 1: substitution + katta harf + symbol
     {
         std::string v = substituteChars(base);
-        if (!v.empty() && islower(v[0])) v[0] = toupper(v[0]);
+        if (!v.empty() && isAsciiLower(v[0])) v[0] = static_cast<char>(asciiUpper(v[0]));
         v += syms[rng()%8];
         v += std::to_string(rng()%90+10);
         results.push_back(v);
@@ -313,7 +344,7 @@ std::vector<std::string> suggestUpgrade(const std::string& base) {
     // Variant 2: o'rtaga symbol + katta harf
     {
         std::string v = base;
-        if (!v.empty() && islower(v[0])) v[0] = toupper(v[0]);
+        if (!v.empty() && isAsciiLower(v[0])) v[0] = static_cast<char>(asciiUpper(v[0]));
         size_t mid = v.size()/2;
         v.insert(mid, 1, syms[rng()%8]);
         v += std::to_string(rng()%900+100);
@@ -368,14 +399,17 @@ StrengthResult analyze(const std::string& password) {
     StrengthResult r;
 
     if (password.empty()) {
-        r.score = 0; r.stars = 0;
+        r.score = 0; r.stars = 0; r.length = 0;
         r.label = "Bo'sh"; r.cssClass = "empty";
         return r;
     }
 
+    r.length = (int)password.size();
+
     // Kichik harfga o'tkazib baza tekshiruvi
     std::string lower = password;
-    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    std::transform(lower.begin(), lower.end(), lower.begin(),
+                   [](char ch) { return static_cast<char>(asciiLower(ch)); });
     r.isCommon = COMMON_PASSWORDS.count(lower) > 0;
 
     r.charset  = analyzeCharset(password);

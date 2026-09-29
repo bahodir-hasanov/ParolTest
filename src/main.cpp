@@ -15,6 +15,8 @@
 #include <vector>
 #include <sstream>
 #include <cstring>
+#include <iomanip>
+#include <algorithm>
 #include "analyzer.hpp"
 
 // ════════════════════════════════════════════════════════════════
@@ -54,6 +56,7 @@ struct AppWidgets {
 
     // Status bar
     GtkWidget* statusBar;
+    guint      statusCtx = 0;
 
     bool passwordVisible = false;
 };
@@ -363,7 +366,7 @@ static void applyClass(GtkWidget* w, const char* cls) {
     gtk_style_context_add_class(gtk_widget_get_style_context(w), cls);
 }
 
-static void removeAllClasses(GtkWidget* w, const char* prefix) {
+static void removeAllClasses(GtkWidget* w, const char* /*prefix*/) {
     GtkStyleContext* ctx = gtk_widget_get_style_context(w);
     static const char* cls[] = {"very-weak","weak","medium","strong","very-strong","empty",nullptr};
     for (int i = 0; cls[i]; i++) gtk_style_context_remove_class(ctx, cls[i]);
@@ -457,13 +460,8 @@ static void updateUI(const StrengthResult& r) {
     std::string scoreText = std::to_string(r.score) + " / 100";
     gtk_label_set_text(GTK_LABEL(app.scoreLabel), scoreText.c_str());
 
-    // ── Uzunlik ───────────────────────────────────────────────
-    {
-        std::string v = std::to_string(r.crack.seconds < 1
-                            ? (int)r.entropy // placeholder
-                            : (int)r.entropy) + " belgi... "; // stub
-        // Aslida parolni saqlashdan olamiz
-    }
+    gtk_label_set_text(GTK_LABEL(app.lengthVal),
+                       (std::to_string(r.length) + " belgi").c_str());
 
     // ── Charset ──────────────────────────────────────────────
     std::string cs;
@@ -569,7 +567,8 @@ static void updateUI(const StrengthResult& r) {
     clearBox(app.generatedBox);
     static const char* genTags[] = {"14 belgi", "16 belgi", "18 belgi"};
     for (size_t i = 0; i < r.generated.size(); i++) {
-        std::string tag = std::string(genTags[i]) + " — Kriptografik";
+        const char* gtag = genTags[i < 3 ? i : 2];
+        std::string tag = std::string(gtag) + " — Kriptografik";
         GtkWidget* row = makeSuggestRow(r.generated[i], tag);
         gtk_box_pack_start(GTK_BOX(app.generatedBox), row, FALSE, FALSE, 0);
     }
@@ -590,24 +589,37 @@ static void onPasswordChanged(GtkEntry* entry, gpointer) {
     gtk_label_set_text(GTK_LABEL(app.lengthVal), lenInfo.c_str());
 
     if (password.empty()) {
-        // Reset
         gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(app.strengthBar), 0.0);
+        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(app.entropyBar), 0.0);
         gtk_label_set_text(GTK_LABEL(app.strengthLabel), "—");
         gtk_label_set_text(GTK_LABEL(app.starsLabel), "☆☆☆☆☆");
         gtk_label_set_text(GTK_LABEL(app.scoreLabel), "0 / 100");
+        gtk_label_set_text(GTK_LABEL(app.charsetVal), "—");
+        gtk_label_set_text(GTK_LABEL(app.entropyVal), "—");
+        gtk_label_set_text(GTK_LABEL(app.crackTimeVal), "—");
+        gtk_label_set_text(GTK_LABEL(app.crackTypeVal), "GPU Brute-force");
+        gtk_label_set_text(GTK_LABEL(app.humorLabel), "");
+        gtk_label_set_text(GTK_LABEL(app.commonBadge), "—");
+        clearBox(app.issuesBox);
+        clearBox(app.tipsBox);
+        clearBox(app.suggestionsBox);
+        clearBox(app.generatedBox);
+        gtk_statusbar_pop(GTK_STATUSBAR(app.statusBar), app.statusCtx);
+        gtk_statusbar_push(GTK_STATUSBAR(app.statusBar), app.statusCtx,
+                           "ParolTest v2.0 | Parol kiriting...");
         return;
     }
 
     StrengthResult r = analyze(password);
     updateUI(r);
 
-    // Status bar
     std::ostringstream sb;
     sb << "Parol tahlil qilindi  |  "
        << r.score << "/100 ball  |  "
        << std::fixed << std::setprecision(1) << r.entropy << " bit  |  "
        << r.crack.label;
-    gtk_statusbar_push(GTK_STATUSBAR(app.statusBar), 0, sb.str().c_str());
+    gtk_statusbar_pop(GTK_STATUSBAR(app.statusBar), app.statusCtx);
+    gtk_statusbar_push(GTK_STATUSBAR(app.statusBar), app.statusCtx, sb.str().c_str());
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -955,7 +967,8 @@ static void buildWindow() {
     // ── Status bar ────────────────────────────────────────────
     app.statusBar = gtk_statusbar_new();
     applyClass(app.statusBar, "statusbar");
-    gtk_statusbar_push(GTK_STATUSBAR(app.statusBar), 0,
+    app.statusCtx = gtk_statusbar_get_context_id(GTK_STATUSBAR(app.statusBar), "main");
+    gtk_statusbar_push(GTK_STATUSBAR(app.statusBar), app.statusCtx,
                        "ParolTest v2.0 | Parol kiriting...");
 
     gtk_box_pack_start(GTK_BOX(mainVBox), contentBox, TRUE,  TRUE,  0);
