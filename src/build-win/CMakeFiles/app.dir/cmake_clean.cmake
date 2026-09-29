@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/app.dir/link.d"
-  "CMakeFiles/app.dir/main.cpp.o"
-  "CMakeFiles/app.dir/main.cpp.o.d"
-  "paroltest"
+  "CMakeFiles/app.dir/ui_win32.cpp.obj"
+  "CMakeFiles/app.dir/ui_win32.cpp.obj.d"
+  "libparoltest.dll.a"
+  "paroltest.exe"
   "paroltest.pdb"
 )
 

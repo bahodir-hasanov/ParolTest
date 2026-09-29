@@ -3,7 +3,7 @@
 
 # Relative path conversion top directories.
 set(CMAKE_RELATIVE_PATH_TOP_SOURCE "/home/aldentra/parol/ParolTest/src")
-set(CMAKE_RELATIVE_PATH_TOP_BINARY "/home/aldentra/parol/ParolTest/src/build")
+set(CMAKE_RELATIVE_PATH_TOP_BINARY "/home/aldentra/parol/ParolTest/src/build-win")
 
 # Force unix paths in dependencies.
 set(CMAKE_FORCE_UNIX_PATHS 1)

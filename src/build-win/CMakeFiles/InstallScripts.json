@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/aldentra/parol/ParolTest/src/build-win/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

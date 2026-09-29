@@ -108,19 +108,19 @@ void copyUtf8(const std::string& u8) {
 }
 
 HWND makeLabel(HWND parent, int x, int y, int w, int h, const wchar_t* text, HFONT font) {
-    HWND h = CreateWindowExW(0, L"STATIC", text,
+    HWND hwnd = CreateWindowExW(0, L"STATIC", text,
                              WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
                              x, y, w, h, parent, nullptr, gInst, nullptr);
-    SendMessageW(h, WM_SETFONT, (WPARAM)font, TRUE);
-    return h;
+    SendMessageW(hwnd, WM_SETFONT, (WPARAM)font, TRUE);
+    return hwnd;
 }
 
 HWND makeBtn(HWND parent, int id, int x, int y, int w, int h, const wchar_t* text) {
-    HWND h = CreateWindowExW(0, L"BUTTON", text,
+    HWND hwnd = CreateWindowExW(0, L"BUTTON", text,
                              WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                              x, y, w, h, parent, (HMENU)(INT_PTR)id, gInst, nullptr);
-    SendMessageW(h, WM_SETFONT, (WPARAM)hFontUi, TRUE);
-    return h;
+    SendMessageW(hwnd, WM_SETFONT, (WPARAM)hFontUi, TRUE);
+    return hwnd;
 }
 
 COLORREF scoreColor(int score) {

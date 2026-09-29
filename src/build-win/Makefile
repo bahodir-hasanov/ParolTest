@@ -60,7 +60,7 @@ EQUALS = =
 CMAKE_SOURCE_DIR = /home/aldentra/parol/ParolTest/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aldentra/parol/ParolTest/src/build
+CMAKE_BINARY_DIR = /home/aldentra/parol/ParolTest/src/build-win
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aldentra/parol/ParolTest/src/build/CMakeFiles /home/aldentra/parol/ParolTest/src/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aldentra/parol/ParolTest/src/build-win/CMakeFiles /home/aldentra/parol/ParolTest/src/build-win//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aldentra/parol/ParolTest/src/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aldentra/parol/ParolTest/src/build-win/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -129,29 +129,29 @@ app/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/build
 .PHONY : app/fast
 
-main.o: main.cpp.o
-.PHONY : main.o
+ui_win32.obj: ui_win32.cpp.obj
+.PHONY : ui_win32.obj
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/main.cpp.o
-.PHONY : main.cpp.o
+ui_win32.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/ui_win32.cpp.obj
+.PHONY : ui_win32.cpp.obj
 
-main.i: main.cpp.i
-.PHONY : main.i
+ui_win32.i: ui_win32.cpp.i
+.PHONY : ui_win32.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/main.cpp.i
-.PHONY : main.cpp.i
+ui_win32.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/ui_win32.cpp.i
+.PHONY : ui_win32.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+ui_win32.s: ui_win32.cpp.s
+.PHONY : ui_win32.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/main.cpp.s
-.PHONY : main.cpp.s
+ui_win32.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/ui_win32.cpp.s
+.PHONY : ui_win32.cpp.s
 
 # Help Target
 help:
@@ -162,9 +162,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... app"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... ui_win32.obj"
+	@echo "... ui_win32.i"
+	@echo "... ui_win32.s"
 .PHONY : help
 
 
